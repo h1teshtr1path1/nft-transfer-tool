@@ -1,0 +1,28 @@
+{
+  "canisters": {
+    "transfer_backend": {
+      "main": "src/transfer_backend/main.mo",
+      "type": "motoko"
+    },
+    "transfer_frontend": {
+      "dependencies": [
+        "transfer_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/transfer_frontend/src/index.html"
+      },
+      "source": [
+        "src/transfer_frontend/assets",
+        "dist/transfer_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}
