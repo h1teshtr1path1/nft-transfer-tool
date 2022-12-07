@@ -1,7 +1,7 @@
 {
   "canisters": {
     "transfer_backend": {
-      "main": "src/transfer_backend/main.mo",
+      "main": "src/transfer_backend/fetcher.mo",
       "type": "motoko"
     },
     "transfer_frontend": {
