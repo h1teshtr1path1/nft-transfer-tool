@@ -1,5 +1,8 @@
 {
-    "transfer_backend": {
-      "ic": "yufgu-hqaaa-aaaao-ad5ma-cai"
-    }
+  "transfer_backend": {
+    "ic": "yufgu-hqaaa-aaaao-ad5ma-cai"
+  },
+  "transfer_frontend": {
+    "ic": "rwgyt-biaaa-aaaag-qbbta-cai"
   }
+}
