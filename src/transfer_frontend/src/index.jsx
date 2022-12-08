@@ -32,11 +32,9 @@ const App = () => {
   const [princiapals, setPrincipals] = useState([]);
   const [connect, setConnect] = useState("Please Connect you Wallet!");
   const [loader, setLoader] = useState(false);
-  const [tokenIndex, setTokenIndex] = useState([]);
   const [from, setFrom] = useState("");
 
   //plug connection and method call
-  const CollectionCanisterId = "rw7qm-eiaaa-aaaak-aaiqq-cai";
   const whitelist = ["rw7qm-eiaaa-aaaak-aaiqq-cai", "gikg4-eaaaa-aaaam-qaieq-cai"];
 
 
@@ -47,13 +45,11 @@ const App = () => {
   const handlePrincipalChange = async (event) => {
     const str = event.target.value;
     setPrincipals(str.split(','));
-    // console.log(princiapals);
   }
-
-  const handleIndexChange = async (event) => {
-    const str = event.target.value;
-    setTokenIndex(str.split(','));
-  }
+  // const handleIndexChange = async (event) => {
+  //   const str = event.target.value;
+  //   setTokenIndex(str.split(','));
+  // }
 
   const handleTransfer = async (event) => {
     const isConnected = await window.ic.plug.isConnected();
@@ -61,21 +57,42 @@ const App = () => {
       alert("Connect Plug Wallet!");
       return;
     }
-    const collectionActor = await window.ic.plug.createActor({
-      canisterId: CollectionCanisterId,
-      interfaceFactory: ext721Did,
-    });
+    // const collectionActor = await window.ic.plug.createActor({
+    //   canisterId: CollectionCanisterId,
+    //   interfaceFactory: ext721Did,
+    // });
 
+    setLoader(true)
     try {
-      setLoader(true)
+      const tokenIds = [];
+      const userCollection = await getNFTCollections();
+      for(let i = 0; i< userCollection.length; i++){
+        if(userCollection[i].canisterId == collectionCanister){
+          // console.log(userCollection[i]);
+          const obj = userCollection[i].tokens;
+          for(let j = 0;j<obj.length;j++){
+            tokenIds.push(obj[j].id);
+          }
+        }
+      }
+      console.log(tokenIds)
+
+
       const sessionData = window.ic.plug.sessionManager.sessionData;
       const to = princiapals;
-      const indices = tokenIndex;
+      const tokenIdentifiers = tokenIds;
       const f = sessionData.principalId;
       const dummyMemmo = new Array(32).fill(0);
       setFrom(f);
 
       const txs = [];
+      if(tokenIdentifiers.length < to.length){
+        console.log(tokenIdentifiers);
+        console.log(to);
+        alert("You do not hold enoguh NFT's in this collection!");
+        setLoader(false);
+        return;
+      }
       for(let i = 0; i< to.length; i++){
         const tx = {
           idl: ext721Did,
@@ -84,7 +101,7 @@ const App = () => {
           args: [{
             to: { principal: Principal.fromText(to[i])},
             from: { principal: Principal.fromText(f)},
-            token: getTokenIdentifier(collectionCanister, Number(indices[i])),
+            token: tokenIdentifiers[i],
             amount: BigInt(1),
             memo: new Array(32).fill(0),
             notify: false,
@@ -101,12 +118,12 @@ const App = () => {
       }
 
       await window.ic.plug.batchTransactions(txs)
-      setLoader(false)
     }
     catch (err) {
       console.log(err);
       setLoader(false)
     }
+    setLoader(false)
   };
 
   const getNFTCollections = async (event) => {
@@ -118,7 +135,8 @@ const App = () => {
       agent,
       user: f
     });
-    console.log(JSON.stringify(collections, (_, v) => typeof v === 'bigint' ? v.toString() : v));
+    // console.log(JSON.stringify(collections, (_, v) => typeof v === 'bigint' ? v.toString() : v));
+    return collections;
   }
 
   const ConnectCallback = async (event) => {
@@ -174,6 +192,7 @@ const App = () => {
         <div style={{ marginTop: 50 }}>
           <div>Transfer NFT of Collection from your wallet!</div>
           <div><input
+            style={{ width: 1000, height: 30 }}
             name="Collection"
             placeholder="Collection Canister ID?"
             required
@@ -182,6 +201,7 @@ const App = () => {
           ></input>
           </div>
           <div><input
+            style={{ width: 1000, height: 30 }}
             name="principals"
             placeholder="principal ids?"
             required
@@ -189,16 +209,16 @@ const App = () => {
             value={princiapals}
           ></input>
           </div>
-          <div><input
+          {/* <div><input
             name="indices"
             placeholder="Nft indices? (, separated)?"
             required
             onInput={handleIndexChange}
             value={tokenIndex}
           ></input>
-          </div>
+          </div> */}
           <button
-            style={{ backgroundColor: "transparent", cursor: 'pointer', marginTop: 20, marginBottom: 20, width: 150, height: 30 }}
+            style={{ backgroundColor: "black", color: "white", cursor: 'pointer', marginTop: 20, marginBottom: 20, width: 1000, height: 30 }}
             className=""
             onClick={handleTransfer}>
             Transfer
@@ -207,15 +227,15 @@ const App = () => {
       </div>
       <br></br>
       <br></br>
-      <div>
+      {/* <div>
         <button
           style={{ backgroundColor: "transparent", cursor: 'pointer', marginTop: 20, marginBottom: 20, width: 200, height: 50 }}
           className=""
           onClick={getNFTCollections}>
           Check NFT Balance?
         </button>
-        {/* <div>{balance}</div> */}
-      </div>
+        <div>{balance}</div>
+      </div> */}
     </div>
   );
 };
