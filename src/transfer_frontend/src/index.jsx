@@ -450,6 +450,7 @@ const App = () => {
             console.log('transfer error', res);
           },
         };
+        console.log(tx);
         txs.push(tx);
       }
 
